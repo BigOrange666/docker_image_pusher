@@ -6,3 +6,4 @@ xhofe/alist:latest
 --platform=linux/arm64 xiaoyaliu/alist
 githubyumao/mcsmanager-web:latest
 githubyumao/mcsmanager-daemon:latest
+docker.io/ubuntu:22.04:latest
