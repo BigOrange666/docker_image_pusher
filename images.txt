@@ -7,3 +7,4 @@ xhofe/alist:latest
 githubyumao/mcsmanager-web:latest
 githubyumao/mcsmanager-daemon:latest
 docker.io/ubuntu:22.04
+cloudflare/cloudflared:latest
