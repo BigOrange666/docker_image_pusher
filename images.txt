@@ -10,3 +10,4 @@ docker.io/ubuntu:22.04
 cloudflare/cloudflared:latest
 chishin/nginx-proxy-manager-zh:2.11.2
 chishin/nginx-proxy-manager-zh:latest
+6053537/portainer-ce:latest
