@@ -12,3 +12,11 @@ chishin/nginx-proxy-manager-zh:2.11.2
 chishin/nginx-proxy-manager-zh:latest
 6053537/portainer-ce:latest
 yobasystems/alpine-mariadb:latest
+p3terx/aria2-pro
+p3terx/ariang
+flaresolverr/flaresolverr:latest
+linuxserver/prowlarr:nightly
+linuxserver/jackett:latest
+superng6/qbittorrentee:latest
+allanpk716/chinesesubfinder:latest
+anypush/nas-tools:latest
