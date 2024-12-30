@@ -20,3 +20,5 @@ linuxserver/jackett:latest
 superng6/qbittorrentee:latest
 allanpk716/chinesesubfinder:latest
 anypush/nas-tools:latest
+amilys/embyserver:beta
+amilys/embyserver:latest
