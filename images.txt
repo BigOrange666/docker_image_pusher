@@ -22,3 +22,4 @@ allanpk716/chinesesubfinder:latest
 anypush/nas-tools:latest
 amilys/embyserver:beta
 amilys/embyserver:latest
+kylinmountain/nastool:2.9.1
