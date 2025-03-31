@@ -12,7 +12,7 @@ docker.io/ubuntu:22.04
 cloudflare/cloudflared:latest
 chishin/nginx-proxy-manager-zh:2.11.2
 chishin/nginx-proxy-manager-zh:latest
-chishin/nginx-proxy-manager-zh:release
+--platform=linux/arm64 chishin/nginx-proxy-manager-zh:release
 6053537/portainer-ce:latest
 yobasystems/alpine-mariadb:latest
 p3terx/aria2-pro
