@@ -1,13 +1,16 @@
 name: Docker
+
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [ main ]
+
 env:
   ALIYUN_REGISTRY: "${{ secrets.ALIYUN_REGISTRY }}"
   ALIYUN_NAME_SPACE: "${{ secrets.ALIYUN_NAME_SPACE }}"
   ALIYUN_REGISTRY_USER: "${{ secrets.ALIYUN_REGISTRY_USER }}"
   ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
+
 jobs:
   build:
     name: Pull
@@ -19,6 +22,7 @@ jobs:
         echo "=============================================================================="
         df -hT
         echo "=============================================================================="
+
     # 增加可用磁盘空间
     - name: Maximize build space
       uses: easimon/maximize-build-space@master
@@ -31,21 +35,29 @@ jobs:
         # remove-android: 'true'
         # remove-codeql: 'true'
         build-mount-path: '/var/lib/docker/'
+
     - name: Restart docker
       run: sudo service docker restart
+
     - name: Free up disk space complete
       run: |
         echo "Free up disk space complete"
         echo "=============================================================================="
         df -hT
         echo "=============================================================================="
+
     - name: Checkout Code
       uses: actions/checkout@v4
+
     - name: Docker Setup Buildx
       uses: docker/setup-buildx-action@v3
-    - name: Build and push multi-arch image Aliyun
+
+    - name: Build and push image Aliyun
       run: |
-        echo "$ALIYUN_REGISTRY_PASSWORD" | docker login -u $ALIYUN_REGISTRY_USER --password-stdin $ALIYUN_REGISTRY
+        docker login -u $ALIYUN_REGISTRY_USER -p $ALIYUN_REGISTRY_PASSWORD $ALIYUN_REGISTRY
+        # 定义需要尝试的架构列表
+        architectures=("linux/arm64" "linux/arm/v7" "linux/arm/v6" "linux/amd64" "linux/386")
+        # 数据预处理,判断镜像是否重名
         declare -A duplicate_images
         declare -A temp_map
         while IFS= read -r line || [ -n "$line" ]; do
@@ -54,6 +66,7 @@ jobs:
             if echo "$line" | grep -q '^\s*#'; then
                 continue
             fi
+            
             # 提取 alias 信息，如果没有 --alias 参数，alias 变量将为空
             alias=$(echo "$line" | sed -n 's/.*--alias[ =]\([^ ]*\).*/\1/p')
             if [ -z "$alias" ]; then
@@ -83,6 +96,7 @@ jobs:
               image_tag="latest"
             fi
             echo "image_tag: $image_tag"
+
             
             # 如果镜像存在于数组中，则添加temp_map
             if [[ -n "${temp_map[$image_name]}" ]]; then
@@ -97,40 +111,85 @@ jobs:
             fi       
         done < images.txt
         
-        architectures=("linux/arm64" "linux/arm/v7" "linux/arm/v6" "linux/amd64" "linux/386")
+        
         while IFS= read -r line || [ -n "$line" ]; do
             # 忽略空行与注释
             [[ -z "$line" ]] && continue
             if echo "$line" | grep -q '^\s*#'; then
                 continue
             fi
+
             # 提取 alias 信息（使用更通用的正则表达式替代 -P 选项）
             alias=$(echo "$line" | sed -n 's/.*--alias[ =]\([^ ]*\).*/\1/p')
             if [ -z "$alias" ]; then
               alias="";  # 如果没有 --alias 参数，alias 变量将为空
             fi
             echo "alias is $alias"
+            
             # 去除 --alias 参数及其值，但保留其他参数
             image=$(echo "$line" | sed -E 's/--alias[ =][^ ]+//g' | xargs)
             
-            for arch in "${architectures[@]}"; do
-                platform=$arch
-                echo "platform is $platform"
-                # 构建多架构镜像并推送
-                docker buildx build \
-                    --platform $platform \
-                    -t $ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/${platform//\//_}_$(echo "$image" | awk -F'/' '{print $NF}' | sed 's/@.*//') \
-                    --push.
-            done
+            # 获取 镜像名:版本号  例如nginx:1.25.3
+            image_name_tag=$(echo "$image" | awk -F'/' '{print $NF}')
+            # 获取命名空间 例如kasmweb  这里有种特殊情况 docker.io/nginx，把docker.io当成命名空间，也OK
+            name_space=$(echo "$image" | awk -F'/' '{if (NF==3) print $2; else if (NF==2) print $1; else print ""}')
+            # 获取镜像名例  例如nginx
+            image_name=$(echo "$image_name_tag" | awk -F':' '{print $1}')
+            # 获取版本号 例如 1.25.3
+            image_tag=$(echo "$image_name_tag" | awk -F':' '{print $2}')
+            if [ -z "$image_tag" ]; then
+              image_tag="latest"
+            fi
+            echo "image_tag: $image_tag"
+
             
-            # 创建manifest list
-            manifest_image=$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$(echo "$image" | awk -F'/' '{print $NF}' | sed 's/@.*//')
-            manifest_args=""
+            name_space_prefix=""
+            # 如果镜像名重名
+            if [[ -n "${duplicate_images[$image_name]}" ]]; then
+               #如果命名空间非空，将命名空间加到前缀
+               if [[ -n "${name_space}" ]]; then
+                  name_space_prefix="${name_space}_"
+               fi
+            fi
+
+            
+            # 将@sha256:等字符删除
+            image_name_tag="${image_name_tag%%@*}"
+                        
+            # 检查别名并替换 image_name_tag
+            alias=$(echo "$line" | awk -F'--alias[ =]' '{if (NF>1) print $2}' | awk '{print $1}')
+            if [ -n "$alias" ]; then
+              image_name_tag="${alias}:${image_tag}"
+            fi
+ 
+            new_image="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$name_space_prefix$image_name_tag"
+            # 初始化 manifest 列表
+            manifests=()
             for arch in "${architectures[@]}"; do
-                arch_suffix="${arch//\//_}"
-                arch_image=$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/${arch_suffix}_$(echo "$image" | awk -F'/' '{print $NF}' | sed 's/@.*//')
-                manifest_args="$manifest_args $arch_image"
+                platform_image="${image}-${arch/\//_}"
+                echo "docker pull --platform $arch $image"
+                if docker pull --platform $arch $image; then
+                    platform_new_image="${new_image}-${arch/\//_}"
+                    echo "docker tag $image $platform_new_image"
+                    docker tag $image $platform_new_image
+                    echo "docker push $platform_new_image"
+                    docker push $platform_new_image
+                    manifests+=("$platform_new_image")
+                    # 清理临时镜像
+                    docker rmi $platform_new_image
+                else
+                    echo "Image $image not available for architecture $arch, skipping."
+                fi
             done
-            docker manifest create $manifest_image $manifest_args
-            docker manifest push $manifest_image
+            # 如果有可用的架构镜像，创建并推送 manifest
+            if [ ${#manifests[@]} -gt 0 ]; then
+                docker manifest create $new_image "${manifests[@]}"
+                for manifest in "${manifests[@]}"; do
+                    docker manifest annotate $new_image $manifest --os $(echo $manifest | cut -d'-' -f2) --arch $(echo $manifest | cut -d'-' -f3)
+                done
+                echo "docker manifest push $new_image"
+                docker manifest push $new_image
+            fi
+            # 清理原始镜像
+            docker rmi $image
         done < images.txt
