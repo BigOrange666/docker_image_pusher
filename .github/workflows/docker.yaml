@@ -3,7 +3,7 @@ name: Docker
 on:
   workflow_dispatch:
   push:
-    branches: [ dev ]
+    branches: [ main, dev ]
 
 env:
   ALIYUN_REGISTRY: "${{ secrets.ALIYUN_REGISTRY }}"
@@ -192,4 +192,4 @@ jobs:
             fi
             # 清理原始镜像
             docker rmi $image
-        done < images.txt
+        done < images.txt    
