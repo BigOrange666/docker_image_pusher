@@ -3,7 +3,7 @@ name: Docker
 on:
   workflow_dispatch:
   push:
-    branches: [ main, dev ]
+    branches: [ dev ]
 
 env:
   ALIYUN_REGISTRY: "${{ secrets.ALIYUN_REGISTRY }}"
@@ -169,7 +169,9 @@ jobs:
                 platform_image="${image}-${arch/\//_}"
                 echo "docker pull --platform $arch $image"
                 if docker pull --platform $arch $image; then
-                    platform_new_image="${new_image}-${arch/\//_}"
+                    # 将架构中的斜杠替换为下划线
+                    safe_arch="${arch//\//_}"
+                    platform_new_image="${new_image}-${safe_arch}"
                     echo "docker tag $image $platform_new_image"
                     docker tag $image $platform_new_image
                     echo "docker push $platform_new_image"
@@ -192,4 +194,4 @@ jobs:
             fi
             # 清理原始镜像
             docker rmi $image
-        done < images.txt    
+        done < images.txt        
