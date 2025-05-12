@@ -5,6 +5,8 @@
 k8s.gcr.io/kube-state-metrics/kube-state-metrics:v2.0.0
 xhofe/alist:latest
 #支持指定架构
+mlikiowa/napcat-docker:latest
+--platform=linux/arm64 mlikiowa/napcat-docker:latest
 --platform=linux/arm64 xiaoyaliu/alist
 githubyumao/mcsmanager-web:latest
 githubyumao/mcsmanager-daemon:latest
@@ -30,5 +32,4 @@ lscr.io/linuxserver/transmission:latest
 2691432189/nginx-proxy-manager-monitor-zh:latest
 homeassistant/home-assistant:latest
 --platform=linux/arm64 homeassistant/home-homeassistant:latest
-mlikiowa/napcat-docker:latest
---platform=linux/arm64 mlikiowa/napcat-docker:latest
+
