@@ -33,4 +33,3 @@ lscr.io/linuxserver/transmission:latest
 homeassistant/home-assistant:latest
 --platform=linux/arm64 homeassistant/home-homeassistant:latest
 teddysun/shadowsocks-r:latest
-
