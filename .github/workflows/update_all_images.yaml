@@ -1,4 +1,4 @@
-name: Docker
+name: update_all_images
 
 on:
   workflow_dispatch:
