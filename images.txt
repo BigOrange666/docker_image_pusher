@@ -1,36 +1,8 @@
 #支持别名（格式为 '--alias=custom_image_name' ）
---alias=mynginx nginx
---alias=mynginx nginx:1.26.2-alpine-perl
+#--alias=mynginx nginx
+#--alias=mynginx nginx:1.26.2-alpine-perl
 #支持私库
-k8s.gcr.io/kube-state-metrics/kube-state-metrics:v2.0.0
-xhofe/alist:latest
+#k8s.gcr.io/kube-state-metrics/kube-state-metrics:v2.0.0
 #支持指定架构
-mlikiowa/napcat-docker:latest
---platform=linux/arm64 mlikiowa/napcat-docker:latest
---platform=linux/arm64 xiaoyaliu/alist
-githubyumao/mcsmanager-web:latest
-githubyumao/mcsmanager-daemon:latest
-docker.io/ubuntu:22.04
-cloudflare/cloudflared:latest
-chishin/nginx-proxy-manager-zh:2.11.2
-chishin/nginx-proxy-manager-zh:latest
---platform=linux/arm64 chishin/nginx-proxy-manager-zh:release
-6053537/portainer-ce:latest
-yobasystems/alpine-mariadb:latest
-p3terx/aria2-pro
-p3terx/ariang
-flaresolverr/flaresolverr:latest
-linuxserver/prowlarr:nightly
-linuxserver/jackett:latest
-superng6/qbittorrentee:latest
-allanpk716/chinesesubfinder:latest
-anypush/nas-tools:latest
-amilys/embyserver:beta
-amilys/embyserver:latest
-kylinmountain/nastool:2.9.1
-lscr.io/linuxserver/transmission:latest
-2691432189/nginx-proxy-manager-monitor-zh:latest
-homeassistant/home-assistant:latest
---platform=linux/arm64 homeassistant/home-assistant:latest
-teddysun/shadowsocks-r:latest
---platform=linux/arm64 teddysun/shadowsocks-r:latest
+#--platform=linux/arm64 mlikiowa/napcat-docker:latest
+boredazfcuk/icloudpd:latest
